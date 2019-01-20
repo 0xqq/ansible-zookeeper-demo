@@ -1,0 +1,68 @@
+- name: deprovision ubuntu vms
+  cs_instance:
+    name: "{{ item}}"
+    zone: "{{ zookeeper.zone }}"
+    state: absent
+  loop: "{{ zookeeper.instance_names }}"
+  tags: ['deprovision']
+
+- name: deprovision affinity group
+  cs_affinitygroup:
+    name: zookeeper
+    affinity_type: host anti-affinity
+    state: absent
+  tags: ['deprovision']
+
+- name: deprovision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    protocol: icmp
+    icmp_code: 0
+    icmp_type: 8
+    state: absent
+  tags: ['deprovision']
+
+- name: deprovision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    start_port: "{{ item }}"
+    end_port: "{{ item }}"
+    type: egress
+    state: absent
+  loop:
+    - 2181
+    - 2888
+    - 3888
+  tags: ['deprovision']
+
+- name: deprovision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    start_port: "{{ item }}"
+    end_port: "{{ item }}"
+    type: ingress
+    state: absent
+  loop:
+    - 2181
+    - 2888
+    - 3888
+  tags: ['deprovision']
+
+- name: deprovision security group
+  cs_securitygroup:
+    name: "{{ zookeeper.security_group }}"
+    state: absent
+  loop:
+    - "{{ zookeeper.security_group }}"
+  tags: ['deprovision']
+
+- name: upload public ssh key
+  cs_sshkeypair:
+    name: "{{ zookeeper.ssh_key }}"
+    public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    state: absent
+  tags: ['deprovision']
+

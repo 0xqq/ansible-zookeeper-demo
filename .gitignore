@@ -1,0 +1,5 @@
+env
+.cloudstack.ini
+venv
+*.retry
+*.tar.gz

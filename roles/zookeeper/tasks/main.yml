@@ -1,0 +1,106 @@
+# cloud-init not installing properly
+- name: install packages
+  apt:
+    name: openjdk-11-jdk
+    update_cache: yes
+  become: yes
+  tags: ['zookeeper']
+
+- name: create group for zookeeper
+  group:
+    name: zookeeper
+  become: yes
+  tags: ['zookeeper']
+
+- name: create user account for zookeeper
+  user:
+    name: zookeeper
+    groups: zookeeper
+    create_home: no
+  become: yes
+  tags: ['zookeeper']
+
+- name: unpack zookeeper
+  unarchive:
+    src: "{{ zookeeper.download }}/zookeeper-{{ zookeeper.version }}.tar.gz"
+    dest: /opt
+    mode: 0775
+    group: zookeeper
+    owner: zookeeper
+  become: yes
+  tags: ['zookeeper']
+
+- name: create symlink
+  file:
+    src: "/opt/zookeeper-{{ zookeeper.version }}"
+    path: /opt/zookeeper
+    state: link
+    mode: '0775'
+    group: zookeeper
+    owner: zookeeper
+  become: yes
+  tags: ['zookeeper']
+
+- name: create zookeeper datadir
+  file:
+    path: "{{ zookeeper.data_dir }}"
+    state: directory
+    mode: '0775'
+    group: zookeeper
+    owner: zookeeper
+  become: yes
+  tags: ['zookeeper']
+
+- debug: msg="{{ hostvars[item].ansible_host }} {{ hostvars[item].inventory_hostname }}"
+  loop: "{{ groups['zookeeper'] }}"
+  tags: debug
+
+- name: create zookeeper config
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ zookeeper.run_dir }}/conf/zoo.cfg"
+    owner: zookeeper
+    group: zookeeper
+    mode: '0664'
+  become: yes
+  tags: ['zookeeper', 'config']
+
+- name: create java env file
+  template:
+    src: java.env.j2
+    dest: "{{ zookeeper.run_dir }}/conf/java.env"
+    owner: zookeeper
+    group: zookeeper
+    mode: '0664'
+  become: yes
+  tags: ['zookeeper', 'config']
+
+- name: create zookeeper myid
+  copy:
+    content: "{{ ansible_hostname[-1:] }}"
+    dest: "{{ zookeeper.data_dir }}/myid"
+  become: yes
+  tags: ['zookeeper']
+
+- name: dns resolution
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
+  become: yes
+  tags: ['zookeeper']
+
+- name: create zookeeper service
+  template:
+    src: service.j2
+    dest: /etc/systemd/system/zookeeper.service
+  become: yes
+  tags: ['zookeeper']
+
+- name: enable and start service
+  systemd:
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    name: zookeeper
+  become: yes
+  tags: ['zookeeper']

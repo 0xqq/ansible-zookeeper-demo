@@ -1,0 +1,7 @@
+---
+- name: deprovision infrastructure
+  hosts: localhost
+  vars_files: ./group_vars/zookeeper.yml
+  roles:
+    - deprovision
+  tags: ['deprovision']

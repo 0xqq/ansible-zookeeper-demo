@@ -1,0 +1,7 @@
+#cloud-config
+---
+hostname: {{ item }}
+
+apt_update: true
+apt_upgrade: true
+packages: ['openjdk-11-jdk','htop']

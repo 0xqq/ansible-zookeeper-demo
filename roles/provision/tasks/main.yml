@@ -1,0 +1,93 @@
+- name: upload public ssh key
+  cs_sshkeypair:
+    name: "{{ zookeeper.ssh_key }}"
+    public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  tags: ['provision']
+
+- name: provision security group
+  cs_securitygroup:
+    name: "{{ zookeeper.security_group }}"
+  tags: ['provision']
+
+- name: provision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    protocol: icmp
+    icmp_code: 0
+    icmp_type: 8
+  tags: ['provision']
+
+# cloud-init not installing properly
+- name: provision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    cidr: 0.0.0.0/0
+    start_port: "{{ item }}"
+    end_port: "{{ item }}"
+    type: egress
+  loop:
+    - 80
+    - 443
+
+- name: provision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    start_port: "{{ item }}"
+    end_port: "{{ item }}"
+    type: egress
+  loop:
+    - 2181
+    - 2888
+    - 3888
+  tags: ['provision']
+
+- name: provision security group rules
+  cs_securitygroup_rule:
+    security_group: "{{ zookeeper.security_group }}"
+    user_security_group: "{{ zookeeper.security_group }}"
+    start_port: "{{ item }}"
+    end_port: "{{ item }}"
+    type: ingress
+  loop:
+    - 2181
+    - 2888
+    - 3888
+  tags: ['provision']
+
+- name: provision affinity group
+  cs_affinitygroup:
+    name: zookeeper
+    affinity_type: host anti-affinity
+  tags: ['provision']
+
+- name: provision ubuntu vms
+  cs_instance:
+    name: "{{ item}}"
+    template: "{{ zookeeper.template }}"
+    service_offering: "{{ zookeeper.instance_type }}"
+    ssh_key: "{{ zookeeper.ssh_key }}"
+    security_groups: 
+      - default
+      - "{{ zookeeper.security_group }}"
+    affinity_groups: "{{ zookeeper.affinity_group }}"
+    zone: "{{ zookeeper.zone }}"
+    user_data: "{{ lookup('template', 'cloud_init.j2') }}"
+  loop: "{{ zookeeper.instance_names }}"
+  tags: ['provision']
+
+- name: retrieving network addresses
+  cs_instance_facts:
+    name: "{{ item }}"
+  loop: "{{ zookeeper.instance_names }}"
+  register: instance_facts
+  tags: ['provision', 'addhost']
+
+- name: add hosts to memory
+  add_host:
+    name: "{{ item.name }}"
+    ansible_host: "{{ item.default_ip }}"
+    groups: "{{ zookeeper.group }}"
+  loop: "{{ instance_facts | json_query('results[*]') }}"
+  tags: ['provision', 'addhost']

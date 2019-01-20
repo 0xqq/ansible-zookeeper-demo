@@ -1,0 +1,42 @@
+---
+- name: provision infrastructure
+  hosts: localhost
+  vars_files: ./group_vars/zookeeper.yml
+  roles:
+    - provision
+  tags: ['provision']
+
+- name: local actions
+  hosts: localhost
+  connection: local
+  vars_files: ./group_vars/zookeeper.yml
+  tasks:
+    - name: templating zookeeper
+      template:
+        src: zookeeper_inventory.j2
+        dest: ./hosts/zookeeper
+        backup: yes
+      tags: ['provision']
+    - name: download zookeeper
+      get_url:
+        url: "https://archive.apache.org/dist/zookeeper/zookeeper-{{ zookeeper.version }}/zookeeper-{{ zookeeper.version }}.tar.gz"
+        dest: "{{ zookeeper.download }}/zookeeper-{{ zookeeper.version }}.tar.gz"
+        checksum: "sha1:https://archive.apache.org/dist/zookeeper/zookeeper-{{ zookeeper.version }}/zookeeper-{{ zookeeper.version }}.tar.gz.sha1"
+      tags: ['local', 'provision']
+
+- name: waiting for instances
+  hosts: zookeeper
+  gather_facts: no
+  tasks:
+    - name: waiting for instances
+      wait_for: 
+        delay: 90
+        timeout: 600
+        port: 22
+  tags: ['provision']
+
+- name: install zookeeper
+  hosts: zookeeper
+  roles:
+    - zookeeper
+  tags: ['zookeeper']

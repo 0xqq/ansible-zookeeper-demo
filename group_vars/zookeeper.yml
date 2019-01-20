@@ -1,0 +1,17 @@
+zookeeper:
+  template: 'Linux Ubuntu 18.04 LTS 64-bit'
+  instance_type: Small
+  ssh_key: zookeeper
+  security_group: zookeeper
+  affinity_group: zookeeper
+  zone: de-fra-1
+  group: zookeeper
+  version: 3.5.3-beta
+  heap_size: '1536'
+  data_dir: /var/lib/zookeeper
+  run_dir: /opt/zookeeper
+  download: ./files
+  instance_names:
+    - zookeeper-1
+    - zookeeper-2
+    - zookeeper-3
