@@ -6,3 +6,4 @@ syncLimit=2
 {% for item in groups['zookeeper'] %}
 server.{{ loop.index }}={{ hostvars[item].inventory_hostname }}:2888:3888
 {% endfor %}
+4lw.commands.whitelist=*

@@ -11,7 +11,7 @@
   connection: local
   vars_files: ./group_vars/zookeeper.yml
   tasks:
-    - name: templating zookeeper
+    - name: templating inventory
       template:
         src: zookeeper_inventory.j2
         dest: ./hosts/zookeeper
@@ -30,8 +30,7 @@
   tasks:
     - name: waiting for instances
       wait_for: 
-        delay: 90
-        timeout: 600
+        timeout: 300
         port: 22
   tags: ['provision']
 

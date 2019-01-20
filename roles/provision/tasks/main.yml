@@ -18,7 +18,6 @@
     icmp_type: 8
   tags: ['provision']
 
-# cloud-init not installing properly
 - name: provision security group rules
   cs_securitygroup_rule:
     security_group: "{{ zookeeper.security_group }}"
@@ -29,6 +28,7 @@
   loop:
     - 80
     - 443
+  tags: ['provision']
 
 - name: provision security group rules
   cs_securitygroup_rule:

@@ -1,4 +1,4 @@
 [zookeeper]
-{% for item in instance_facts.results %}
-{{ item.name }} ansible_host={{ item.default_ip }}
+{% for item in groups['zookeeper'] %}
+{{ item.name }} ansible_host={{ hostvars[item].default_ip }}
 {% endfor %}

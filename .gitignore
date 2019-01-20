@@ -3,3 +3,4 @@ env
 venv
 *.retry
 *.tar.gz
+hosts/zookeepe*

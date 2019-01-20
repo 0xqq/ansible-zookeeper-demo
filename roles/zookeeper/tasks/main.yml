@@ -1,11 +1,3 @@
-# cloud-init not installing properly
-- name: install packages
-  apt:
-    name: openjdk-11-jdk
-    update_cache: yes
-  become: yes
-  tags: ['zookeeper']
-
 - name: create group for zookeeper
   group:
     name: zookeeper
@@ -85,9 +77,10 @@
 - name: dns resolution
   lineinfile:
     path: /etc/hosts
-    line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
+    line: "{{ hostvars[item].ansible_host }} {{ hostvars[item].inventory_hostname }}"
+  loop: "{{ groups['zookeeper'] }}"
   become: yes
-  tags: ['zookeeper']
+  tags: ['zookeeper', 'dns']
 
 - name: create zookeeper service
   template:
@@ -104,3 +97,15 @@
     name: zookeeper
   become: yes
   tags: ['zookeeper']
+
+- name: test zookeeper cluster
+  shell: echo mntr | nc localhost 2181
+  register: mntr
+  tags: ['provision', 'test']
+
+- name: cluster status good
+  debug:
+    msg: "Zookeeper Cluster Running Correctly"
+  when: mntr.stdout.find('zk_followers\t2')
+  tags: ['provision', 'test']
+
