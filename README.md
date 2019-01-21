@@ -1,5 +1,4 @@
-# Ansible Playbook to run a Zookeeper-Cluster on Exoscale
-====================
+# Demo of an Ansible Playbook to run a Zookeeper-Cluster on Exoscale
 
 This is a test and not for production use because:
 - ports 443 and 80 are open for egress traffic
