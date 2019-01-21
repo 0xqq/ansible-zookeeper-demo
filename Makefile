@@ -16,12 +16,12 @@ install:
 
 run: 
 	test -d $(VENV_NAME) && $(VENV_ACTIVATE) ;\
-	ansible-playbook zookeeper.yml -vvv ;\
+	ansible-playbook zookeeper.yml ;\
 	deactivate
 
 deprovision:
 	test -d $(VENV_NAME) && $(VENV_ACTIVATE) ;\
-	ansible-playbook deprovision.yml -vvv ;\
+	ansible-playbook deprovision.yml ;\
 	deactivate
 
 clean:
