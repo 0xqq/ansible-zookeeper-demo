@@ -29,9 +29,7 @@
   gather_facts: no
   tasks:
     - name: waiting for instances
-      wait_for: 
-        timeout: 300
-        port: 22
+      wait_for_connection:
   tags: ['provision']
 
 - name: install zookeeper
