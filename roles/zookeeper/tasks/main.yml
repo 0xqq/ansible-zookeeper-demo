@@ -43,10 +43,6 @@
   become: yes
   tags: ['zookeeper']
 
-- debug: msg="{{ hostvars[item].ansible_host }} {{ hostvars[item].inventory_hostname }}"
-  loop: "{{ groups['zookeeper'] }}"
-  tags: debug
-
 - name: create zookeeper config
   template:
     src: zoo.cfg.j2
@@ -99,13 +95,8 @@
   tags: ['zookeeper']
 
 - name: test zookeeper cluster
-  shell: echo mntr | nc localhost 2181
-  register: mntr
+  shell: echo ruok | nc localhost 2181
+  register: ruok
+  failed_when: ruok.rc != 0
+  changed_when: no
   tags: ['provision', 'test']
-
-- name: cluster status good
-  debug:
-    msg: "Zookeeper Cluster Running Correctly"
-  when: mntr.stdout.find('zk_followers\t2')
-  tags: ['provision', 'test']
-
