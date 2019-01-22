@@ -30,6 +30,9 @@
   tasks:
     - name: waiting for instances
       wait_for_connection:
+    - name: waiting longer
+      pause:
+        minutes: 5
   tags: ['provision']
 
 - name: install zookeeper

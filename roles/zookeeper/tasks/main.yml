@@ -91,12 +91,19 @@
     enabled: yes
     daemon_reload: yes
     name: zookeeper
+  ignore_errors: yes
   become: yes
   tags: ['zookeeper']
+
+- name: waiting for instances to find each other
+  wait_for:
+    timeout: 300
+    port: 2181
+  tags: ['zookeeper', 'test']
 
 - name: test zookeeper cluster
   shell: echo ruok | nc localhost 2181
   register: ruok
   failed_when: ruok.rc != 0
   changed_when: no
-  tags: ['provision', 'test']
+  tags: ['zookeeper', 'test']
