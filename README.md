@@ -2,8 +2,9 @@
 
 This is a test and not for production use because:
 - ports 443 and 80 are open for egress traffic
-- Zookeeper is running with four letter words enabled
-- not hardened
+- Zookeeper is not configured to be particularly secure
+- OS not hardened
+- instances are small with only 1.5GB of RAM
 
 ## Setup
 
