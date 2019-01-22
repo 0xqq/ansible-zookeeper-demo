@@ -7,6 +7,7 @@ PYTHON=${VENV_NAME}/bin/python
 
 install:
 	type python &> /dev/null || (echo "ERROR: Please Install Python"; exit 1) ;\
+	type pip &> /dev/null || (echo "ERROR: Please Install pip"; exit 1) ;\
 	python -m pip install --user --upgrade pip ;\
 	python -m pip install --user virtualenv ;\
 	test -d $(VENV_NAME) || python -m virtualenv $(VENV_NAME) ;\
