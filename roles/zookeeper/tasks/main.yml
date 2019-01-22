@@ -1,3 +1,10 @@
+- name: make sure java is installed
+  apt:
+    name: openjdk-11-jdk
+    update_cache: yes
+  become: yes
+  tags: ['zookeeper']
+
 - name: create group for zookeeper
   group:
     name: zookeeper
@@ -92,14 +99,12 @@
     daemon_reload: yes
     name: zookeeper
   ignore_errors: yes
+  register: service_result
+  retries: 5
+  delay: 2
+  until: service_result is succeeded
   become: yes
-  tags: ['zookeeper']
-
-- name: waiting for instances to find each other
-  wait_for:
-    timeout: 300
-    port: 2181
-  tags: ['zookeeper', 'test']
+  tags: ['zookeeper', 'starting']
 
 - name: test zookeeper cluster
   shell: echo ruok | nc localhost 2181

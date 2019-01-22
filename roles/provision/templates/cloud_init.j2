@@ -1,11 +1,3 @@
 #cloud-config
 ---
 hostname: {{ item }}
-
-apt_update: true
-apt_upgrade: true
-packages: ['openjdk-11-jdk']
-
-power_state:
-    mode: reboot
-    message: need to reboot after upgrade
