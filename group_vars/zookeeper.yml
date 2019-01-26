@@ -10,7 +10,7 @@ zookeeper:
   heap_size: '1536'
   data_dir: /var/lib/zookeeper
   run_dir: /opt/zookeeper
-  download: ./files
+  download: .
   instance_names:
     - zookeeper-1
     - zookeeper-2
